@@ -5,7 +5,6 @@ Firmware for ESP8266 / ESP32 microcontrollers and different IMU sensors to use t
 Requires [SlimeVR Server](https://github.com/SlimeVR/SlimeVR-Server) to work with SteamVR and resolve pose. Should be compatible with [owoTrack](https://github.com/abb128/owo-track-driver), but is not guaranteed.
 
 ## WARNING: Code only for boards that communicate with BNO085 using SPI 
----
 
 **NOTE: This is specifically tailor-made for the ComplexArts Sensor Board, which has a BNO085 wired through SPI. As such, the `defines.h` file has been modified from stock.**
 
