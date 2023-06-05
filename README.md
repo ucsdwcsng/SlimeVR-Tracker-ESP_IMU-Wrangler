@@ -4,6 +4,31 @@ Firmware for ESP8266 / ESP32 microcontrollers and different IMU sensors to use t
 
 Requires [SlimeVR Server](https://github.com/SlimeVR/SlimeVR-Server) to work with SteamVR and resolve pose. Should be compatible with [owoTrack](https://github.com/abb128/owo-track-driver), but is not guaranteed.
 
+## WARNING: Code only for boards that communicate with BNO085 using SPI 
+---
+
+**NOTE: This is specifically tailor-made for the ComplexArts Sensor Board, which has a BNO085 wired through SPI. As such, the `defines.h` file has been modified from stock.**
+
+If you would like to modify this, you can set flags in `defines.h` with the following flags:
+```
+USE_SPI_IMU (bool)
+
+PIN_IMU_CS (int)
+PIN_IMU_WAK (int)
+PIN_IMU_RST (int)
+PIN_SPI_CLK (int)
+PIN_SPI_MISO (int)
+PIN_SPI_MOSI (int)
+```
+`USE_SPI_IMU` defines whether to use the SPI protocol to communicate with the BNO085. If you do not want to use SPI and instead use I2C for adatability reasons, you can se this to `false`. Otherwise, to use SPI, this must be `true`.
+
+For SPI to work, you must set 6 pins defining SPI parameters. These are `CS`, `WAK`, `RST`, `CLK`, `MISO`, and `MOSI`. On an ESP32, these are defined on the pins specified in the `defines.h` file. If they are different, set them accordingly.
+
+These changes are reflected in the files `bno080sensor.cpp` and `bno080sensor.h` files where there are new functions to use SPI for BNO085 communications. There are also minimal changes in `sensor.h` to enable this functionality along with changes to how the sensor is initialized in SlimeVR within the `SensorManager.cpp` file.
+
+Now back to your regularly scheduled programming.
+
+
 ## Configuration
 
 Firmware configuration is located in the `defines.h` file. For more information on how to configure your firmware, refer to the [Configuring the firmware project section of SlimeVR documentation](https://docs.slimevr.dev/firmware/configuring-project.html).

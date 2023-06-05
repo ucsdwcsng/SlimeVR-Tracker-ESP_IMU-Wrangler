@@ -43,15 +43,18 @@ namespace SlimeVR
             uint8_t secondIMUAddress = 0;
 
             bool sharedIMUAddresses = (PRIMARY_IMU_ADDRESS_ONE == SECONDARY_IMU_ADDRESS_ONE && PRIMARY_IMU_ADDRESS_TWO == SECONDARY_IMU_ADDRESS_TWO);
-            {
-                firstIMUAddress = I2CSCAN::pickDevice(PRIMARY_IMU_ADDRESS_ONE, PRIMARY_IMU_ADDRESS_TWO, true);
+            {   
                 uint8_t sensorID = 0;
-                if(sharedIMUAddresses && firstIMUAddress != PRIMARY_IMU_ADDRESS_ONE)
-                {
-                    sensorID = 1;
-                }
+                #if USE_SPI_IMU == false
+                    firstIMUAddress = I2CSCAN::pickDevice(PRIMARY_IMU_ADDRESS_ONE, PRIMARY_IMU_ADDRESS_TWO, true);
+                    if(sharedIMUAddresses && firstIMUAddress != PRIMARY_IMU_ADDRESS_ONE)
+                    {
+                        sensorID = 1;
+                    }
+                #endif
 
-                if (firstIMUAddress == 0)
+
+                if (!USE_SPI_IMU && firstIMUAddress == 0)
                 {
                     m_Sensor1 = new ErroneousSensor(sensorID, IMU);
                 }
@@ -74,7 +77,11 @@ namespace SlimeVR
 #endif
                 }
 
-                m_Sensor1->motionSetup();
+                #if USE_SPI_IMU == false
+                    m_Sensor1->motionSetup();
+                #else
+                    m_Sensor1->motionSPISetup();
+                #endif
             }
 
             {

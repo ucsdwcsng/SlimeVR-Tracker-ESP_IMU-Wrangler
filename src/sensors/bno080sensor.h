@@ -26,6 +26,7 @@
 
 #include "sensor.h"
 #include <BNO080.h>
+#include <SPI.h>
 
 class BNO080Sensor : public Sensor
 {
@@ -34,6 +35,7 @@ public:
         : Sensor("BNO080Sensor", type, id, address, rotation), m_IntPin(intPin) {};
     ~BNO080Sensor(){};
     void motionSetup() override final;
+    void motionSPISetup();
     void postSetup() override {
         lastData = millis();
     }
@@ -44,6 +46,7 @@ public:
     uint8_t getSensorState() override final;
 
 private:
+    SPIClass spiPort;
     BNO080 imu{};
 
     uint8_t m_IntPin;

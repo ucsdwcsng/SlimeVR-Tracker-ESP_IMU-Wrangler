@@ -26,6 +26,66 @@
 #include "utils.h"
 #include "GlobalVars.h"
 
+void BNO080Sensor::motionSPISetup()
+{
+#ifdef DEBUG_SENSOR
+    imu.enableDebugging(Serial);
+#endif
+    spiPort.begin(PIN_SPI_CLK, PIN_SPI_MISO, PIN_SPI_MOSI, PIN_IMU_CS);
+    //bno.beginSPI(imuCSPin, imuWAKPin, imuINTPin, imuRSTPin, spiPortSpeed, spiPort)
+    if(!imu.beginSPI(PIN_IMU_CS, PIN_IMU_WAK, PIN_IMU_INT, PIN_IMU_RST, 1000000, spiPort)) {
+        m_Logger.fatal("Can't connect to %s on SPI", getIMUNameByType(sensorType));
+        ledManager.pattern(50, 50, 200);
+        return;
+    }
+
+    m_Logger.info("Connected to %s using SPI. "
+                  "Info: SW Version Major: 0x%02x "
+                  "SW Version Minor: 0x%02x "
+                  "SW Part Number: 0x%02x "
+                  "SW Build Number: 0x%02x "
+                  "SW Version Patch: 0x%02x", 
+                  getIMUNameByType(sensorType),  
+                  imu.swMajor, 
+                  imu.swMinor, 
+                  imu.swPartNumber, 
+                  imu.swBuildNumber, 
+                  imu.swVersionPatch
+                );
+
+    this->imu.enableLinearAccelerometer(10);
+
+#if USE_6_AXIS
+    #if (IMU == IMU_BNO085 || IMU == IMU_BNO086) && BNO_USE_ARVR_STABILIZATION
+    imu.enableARVRStabilizedGameRotationVector(10);
+    #else
+    imu.enableGameRotationVector(10);
+    #endif
+
+    #if BNO_USE_MAGNETOMETER_CORRECTION
+    imu.enableRotationVector(1000);
+    #endif
+#else
+    #if (IMU == IMU_BNO085 || IMU == IMU_BNO086) && BNO_USE_ARVR_STABILIZATION
+    imu.enableARVRStabilizedRotationVector(10);
+    #else
+    imu.enableRotationVector(10);
+    #endif
+#endif
+
+#if ENABLE_INSPECTION
+    imu.enableRawGyro(10);
+    imu.enableRawAccelerometer(10);
+    imu.enableRawMagnetometer(10);
+#endif
+
+    imu.enableRotationVector(50);
+    lastReset = 0;
+    lastData = millis();
+    working = true;
+    configured = true;
+}
+
 void BNO080Sensor::motionSetup()
 {
 #ifdef DEBUG_SENSOR
