@@ -8,6 +8,8 @@ Requires [SlimeVR Server](https://github.com/SlimeVR/SlimeVR-Server) to work wit
 
 **NOTE: This is specifically tailor-made for the ComplexArts Sensor Board, which has a BNO085 wired through SPI. As such, the `defines.h` file has been modified from stock.**
 
+**Also important, this only works with BNO085. If you would like to use SPI for other IMU's, create issues in this repository, not the main SlimeVR ESP repository (until they implement SPI)!**
+
 If you would like to modify this, you can set flags in `defines.h` with the following flags:
 ```
 USE_SPI_IMU (bool)
@@ -19,7 +21,7 @@ PIN_SPI_CLK (int)
 PIN_SPI_MISO (int)
 PIN_SPI_MOSI (int)
 ```
-`USE_SPI_IMU` defines whether to use the SPI protocol to communicate with the BNO085. If you do not want to use SPI and instead use I2C for adatability reasons, you can se this to `false`. Otherwise, to use SPI, this must be `true`.
+`USE_SPI_IMU` defines whether to use the SPI protocol to communicate with the BNO085. If you do not want to use SPI and instead use I2C for adaptability reasons, you can set this to `false`. Otherwise, to use SPI, this must be `true`.
 
 For SPI to work, you must set 6 pins defining SPI parameters. These are `CS`, `WAK`, `RST`, `CLK`, `MISO`, and `MOSI`. On an ESP32, these are defined on the pins specified in the `defines.h` file. If they are different, set them accordingly.
 
