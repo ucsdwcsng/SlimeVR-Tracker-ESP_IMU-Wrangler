@@ -42,7 +42,6 @@ namespace SlimeVR
     namespace Sensors
     {
         Sensor* SensorManager::buildSensor(uint8_t sensorID, uint8_t imuType, uint8_t address, float rotation, uint8_t sclPin, uint8_t sdaPin, int extraParam)
-        Sensor* SensorManager::buildSensor(uint8_t sensorID, uint8_t imuType, uint8_t address, float rotation, uint8_t sclPin, uint8_t sdaPin, int extraParam)
         {
             m_Logger.trace("Building IMU with: id=%d,\n\
                             imuType=0x%02X, address=0x%02X, rotation=%f,\n\
@@ -64,6 +63,9 @@ namespace SlimeVR
                 } else {
                     sensor = new ErroneousSensor(sensorID, imuType);
                     return sensor;
+                }
+            #endif
+
             switch (imuType) {
             case IMU_BNO080: case IMU_BNO085: case IMU_BNO086:
                 // Extra param used as interrupt pin
@@ -71,11 +73,6 @@ namespace SlimeVR
                 uint8_t intPin = extraParam;
                 sensor = new BNO080Sensor(sensorID, imuType, address, rotation, sclPin, sdaPin, intPin);
                 }
-            #endif
-
-            switch (imuType) {
-            case IMU_BNO080: case IMU_BNO085: case IMU_BNO086:
-                // Extra param used as interrupt pin
                 break;
             case IMU_BNO055:
                 sensor = new BNO055Sensor(sensorID, address, rotation, sclPin, sdaPin);
@@ -107,7 +104,12 @@ namespace SlimeVR
                 break;
             }
 
-            sensor->motionSetup();
+            #if USE_SPI_IMU == false
+                sensor->motionSetup();
+            #else
+                sensor->motionSPISetup();
+            #endif
+            
             return sensor;
         }
 
