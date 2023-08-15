@@ -72,11 +72,15 @@ bool Connection::beginPacket() {
 	}
 
 	int r = m_UDP.beginPacket(m_ServerHost, m_ServerPort);
+	udp_debug_conn = m_UDP_Debug.beginPacket(IPAddress(192, 168, 50, 200), 6970);
 	if (r == 0) {
 		// This *technically* should *never* fail, since the underlying UDP
 		// library just returns 1.
 
 		m_Logger.warn("UDP beginPacket() failed");
+	}
+	if (udp_debug_conn == 0) {
+		m_Logger.debug("Cannot connect to debug");
 	}
 
 	return r > 0;
@@ -103,6 +107,10 @@ bool Connection::endPacket() {
 	}
 
 	int r = m_UDP.endPacket();
+	if ( udp_debug_conn ) {
+		int r1 = m_UDP_Debug.endPacket();	
+	}
+
 	if (r == 0) {
 		// This is usually just `ERR_ABRT` but the UDP client doesn't expose
 		// the full error code to us, so we just have to live with it.
@@ -143,6 +151,11 @@ size_t Connection::write(const uint8_t *buffer, size_t size) {
 		m_BundlePacketPosition += size;
 		return size;
 	}
+
+	if ( udp_debug_conn ) {
+		m_UDP_Debug.write(buffer, size);
+	}
+
 	return m_UDP.write(buffer, size);
 }
 
@@ -606,6 +619,7 @@ void Connection::reset() {
 	std::fill(m_AckedSensorState, m_AckedSensorState+MAX_IMU_COUNT, SensorStatus::SENSOR_OFFLINE);
 
 	m_UDP.begin(m_ServerPort);
+	m_UDP_Debug.begin(6970);
 
 	statusManager.setStatus(SlimeVR::Status::SERVER_CONNECTING, true);
 }

@@ -151,7 +151,8 @@ private:
 	bool m_Connected = false;
 	SlimeVR::Logging::Logger m_Logger = SlimeVR::Logging::Logger("UDPConnection");
 
-	WiFiUDP m_UDP;
+	WiFiUDP m_UDP, m_UDP_Debug;
+	int udp_debug_conn = 0;
 	unsigned char m_Packet[128];  // buffer for incoming packets
 	uint64_t m_PacketNumber = 0;
 
