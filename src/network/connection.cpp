@@ -72,16 +72,16 @@ bool Connection::beginPacket() {
 	}
 
 	int r = m_UDP.beginPacket(m_ServerHost, m_ServerPort);
-	udp_debug_conn = m_UDP_Debug.beginPacket(IPAddress(192, 168, 50, 200), 6970);
+	// udp_debug_conn = m_UDP_Debug.beginPacket(IPAddress(192, 168, 50, 200), 6970);
 	if (r == 0) {
 		// This *technically* should *never* fail, since the underlying UDP
 		// library just returns 1.
 
 		m_Logger.warn("UDP beginPacket() failed");
 	}
-	if (udp_debug_conn == 0) {
-		m_Logger.debug("Cannot connect to debug");
-	}
+	// if (udp_debug_conn == 0) {
+	// 	m_Logger.debug("Cannot connect to debug");
+	// }
 
 	return r > 0;
 }
@@ -107,9 +107,9 @@ bool Connection::endPacket() {
 	}
 
 	int r = m_UDP.endPacket();
-	if ( udp_debug_conn ) {
-		int r1 = m_UDP_Debug.endPacket();	
-	}
+	// if ( udp_debug_conn ) {
+	// 	int r1 = m_UDP_Debug.endPacket();	
+	// }
 
 	if (r == 0) {
 		// This is usually just `ERR_ABRT` but the UDP client doesn't expose
@@ -152,9 +152,9 @@ size_t Connection::write(const uint8_t *buffer, size_t size) {
 		return size;
 	}
 
-	if ( udp_debug_conn ) {
-		m_UDP_Debug.write(buffer, size);
-	}
+	// if ( udp_debug_conn ) {
+	// 	m_UDP_Debug.write(buffer, size);
+	// }
 
 	return m_UDP.write(buffer, size);
 }
@@ -229,6 +229,46 @@ bool Connection::sendLongString(const char* str) {
 }
 
 int Connection::getWriteError() { return m_UDP.getWriteError(); }
+
+// Write to external UDP server
+void Connection::sendExternalServer(float* vector, Quat* const quaternion, uint8_t accuracyInfo) {
+	// beginPacket
+	udp_debug_conn = m_UDP_Debug.beginPacket(IPAddress(192, 168, 50, 200), 6970);
+	if (udp_debug_conn == 0) {
+		m_Logger.debug("Cannot connect to debug");
+		return;
+	}
+
+	// Begin delimiter
+	MUST(m_UDP_Debug.write((uint8_t)0xEF));
+
+	// sendFloat(vector)
+	convert_to_chars(vector[0], m_Buf);
+	MUST(m_UDP_Debug.write(m_Buf, sizeof(vector[0])));
+	convert_to_chars(vector[1], m_Buf);
+	MUST(m_UDP_Debug.write(m_Buf, sizeof(vector[1])));
+	convert_to_chars(vector[2], m_Buf);
+	MUST(m_UDP_Debug.write(m_Buf, sizeof(vector[2])));
+
+	// sendFloat(quaternion)
+	convert_to_chars(quaternion->x, m_Buf);
+	MUST(m_UDP_Debug.write(m_Buf, sizeof(quaternion->x)));
+	convert_to_chars(quaternion->y, m_Buf);
+	MUST(m_UDP_Debug.write(m_Buf, sizeof(quaternion->y)));
+	convert_to_chars(quaternion->z, m_Buf);
+	MUST(m_UDP_Debug.write(m_Buf, sizeof(quaternion->z)));
+	convert_to_chars(quaternion->w, m_Buf);
+	MUST(m_UDP_Debug.write(m_Buf, sizeof(quaternion->w)));
+
+	// sendByte(accuracyInfo)
+	MUST(m_UDP_Debug.write(&accuracyInfo, 1));
+
+	// End delimiter
+	MUST(m_UDP_Debug.write((uint8_t)0xFE));
+
+	// endPacket
+	MUST(m_UDP_Debug.endPacket());
+} 
 
 // PACKET_HEARTBEAT 0
 void Connection::sendHeartbeat() {
