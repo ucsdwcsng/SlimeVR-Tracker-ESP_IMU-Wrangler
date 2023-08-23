@@ -1,9 +1,8 @@
 # Simulate UDP requests to a server
-import re
 import socket
-import multiprocessing
 import struct
-from time import sleep
+import pandas as pd
+from scipy.spatial.transform import Rotation
 
 # Assuming the packet has been received and stored in a variable called 'packet'
 # Assuming `data` is the binary data received from the network
@@ -12,7 +11,7 @@ end_delimiter = b'\xfe'
 vector_format = 'fff'
 quaternion_format = 'ffff'
 # The format string specifies the data types and their order in the packet
-format_string = "<f f f f f f f B"
+format_string = "<x7fBx"
 format_string_size = struct.calcsize(format_string)
 accuracy_info_format = 'B'
 
@@ -33,7 +32,7 @@ while True:
     for index, sock in enumerate(sockets):
         try:
             # Read any data coming from socket  
-            data, addr = sock.recvfrom(58)
+            data, addr = sock.recvfrom(44)
             stream = data.decode('latin1')
             buffers[index] += data
 
@@ -54,15 +53,29 @@ while True:
 
             # Process all complete packets in the buffer
             while len(buffers[index]) >= format_string_size:
+                offset = buffers[index].find(delimiter)
+
+                # # Check if we have received a complete packet
+                if offset + format_string_size > len(buffers[index]):
+                    break
+
                 # Unpack the packet using struct
-                packet = struct.unpack(format_string, buffers[index][:format_string_size])
+                packet = struct.unpack_from(format_string, buffers[index][:format_string_size], offset=offset)
                 # Extract the data from the packet
+                print(packet)
                 vector = packet[:3]
                 quaternion = packet[3:7]
                 accuracy_info = packet[7]
 
                 # Do something with the data here
-                print(f"Received vector: {vector}, quaternion: {quaternion}, accuracy info: {accuracy_info}")
+                print(f"Packet: {packet}")
+                print(vector)
+                print(list(quaternion))
+
+                # Convert quaternion to euler angles
+                rot = Rotation.from_quat(list(quaternion))
+                rot_euler = rot.as_euler('xyz', degrees=True)
+                print(f"Euler: {rot_euler.tolist()}")
 
                 # Remove the processed data from the buffer
                 buffers[index] = buffers[index][format_string_size:]
