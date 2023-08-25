@@ -11,7 +11,7 @@ end_delimiter = b'\xfe'
 vector_format = 'fff'
 quaternion_format = 'ffff'
 # The format string specifies the data types and their order in the packet
-format_string = "<x7fBx"
+format_string = ">x7fBx"
 format_string_size = struct.calcsize(format_string)
 accuracy_info_format = 'B'
 
@@ -32,7 +32,7 @@ while True:
     for index, sock in enumerate(sockets):
         try:
             # Read any data coming from socket  
-            data, addr = sock.recvfrom(44)
+            data, addr = sock.recvfrom(1024)
             stream = data.decode('latin1')
             buffers[index] += data
 
@@ -62,20 +62,15 @@ while True:
                 # Unpack the packet using struct
                 packet = struct.unpack_from(format_string, buffers[index][:format_string_size], offset=offset)
                 # Extract the data from the packet
-                print(packet)
+                # print(packet)
                 vector = packet[:3]
                 quaternion = packet[3:7]
                 accuracy_info = packet[7]
 
-                # Do something with the data here
-                print(f"Packet: {packet}")
-                print(vector)
-                print(list(quaternion))
-
-                # Convert quaternion to euler angles
+                # # Convert quaternion to euler angles
                 rot = Rotation.from_quat(list(quaternion))
                 rot_euler = rot.as_euler('xyz', degrees=True)
-                print(f"Euler: {rot_euler.tolist()}")
+                print(vector, '\t', rot_euler.tolist())
 
                 # Remove the processed data from the buffer
                 buffers[index] = buffers[index][format_string_size:]
