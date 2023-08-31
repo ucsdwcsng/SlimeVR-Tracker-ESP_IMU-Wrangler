@@ -233,7 +233,7 @@ int Connection::getWriteError() { return m_UDP.getWriteError(); }
 // Write to external UDP server
 void Connection::sendExternalServer(uint8_t sensorID, float* vector, Quat* const quaternion, uint8_t accuracyInfo) {
 	// beginPacket
-	udp_debug_conn = m_UDP_Debug.beginPacket(IPAddress(192, 168, 50, 200), 6970);
+	udp_debug_conn = m_UDP_Debug.beginPacket(IPAddress(10, 42, 0, 183), 6970);
 	if (udp_debug_conn == 0) {
 		m_Logger.debug("Cannot connect to debug");
 		return;
