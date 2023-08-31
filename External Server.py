@@ -11,13 +11,13 @@ end_delimiter = b'\xfe'
 vector_format = 'fff'
 quaternion_format = 'ffff'
 # The format string specifies the data types and their order in the packet
-format_string = ">x7fBx"
+format_string = ">xB7fBx"
 format_string_size = struct.calcsize(format_string)
 accuracy_info_format = 'B'
 
 # List of tuples to query IMU data from
 addresses = []
-addresses.append(('192.168.1.121', 6970))
+addresses.append(('10.42.0.241', 6970))
 
 sockets = []
 buffers = []

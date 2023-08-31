@@ -25,30 +25,33 @@
 // https://docs.slimevr.dev/firmware/configuring-project.html#2-configuring-definesh
 // ================================================
 
-#define ORIG_HARDWARE false
+#define ORIG_HARDWARE true
 
 #if ORIG_HARDWARE == false
-    // Set parameters of IMU and board used
-    #define IMU IMU_BNO085
-    #define SECOND_IMU IMU
-    #define BOARD BOARD_CUSTOM
-    #define IMU_ROTATION DEG_270
-    #define SECOND_IMU_ROTATION DEG_270
-    #define USE_SPI_IMU true
+  // Set parameters of IMU and board used
+  #define IMU IMU_BNO085
+  #define SECOND_IMU IMU
+  #define BOARD BOARD_CUSTOM
+  #define IMU_ROTATION DEG_270
+  #define SECOND_IMU_ROTATION DEG_270
+  #define USE_SPI_IMU true
 
-    #define MAX_IMU_COUNT 2
+  #define MAX_IMU_COUNT 2
 
-    uint32_t spiPortSpeed = 100*1000;
-    #define SPI_PORT_SPD 100000
-#else
-    // Set parameters of IMU and board used
-    #define IMU IMU_BNO085
-    #define SECOND_IMU IMU
-    #define BOARD BOARD_SLIMEVR
-    #define IMU_ROTATION DEG_270
-    #define SECOND_IMU_ROTATION DEG_270
+  // uint32_t spiPortSpeed = 100*1000;
+  #define SPI_PORT_SPD 100000
+#endif
 
-    #define MAX_IMU_COUNT 2
+#if ORIG_HARDWARE == true
+  // Set parameters of IMU and board used
+  #define IMU IMU_BNO085
+  #define SECOND_IMU IMU
+  #define BOARD BOARD_SLIMEVR
+  #define IMU_ROTATION DEG_270
+  #define SECOND_IMU_ROTATION DEG_270
+  #define USE_SPI_IMU false
+
+  #define MAX_IMU_COUNT 2
 #endif
 
 // Axis mapping example
