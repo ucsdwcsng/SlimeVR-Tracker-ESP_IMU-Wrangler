@@ -42,7 +42,7 @@ public:
 	void reset();
 	bool isConnected() const { return m_Connected; }
 
-	void sendExternalServer(float* vector, Quat* const quaternion, uint8_t accuracyInfo);
+	void sendExternalServer(uint8_t sensorID, float* vector, Quat* const quaternion, uint8_t accuracyInfo);
 
 	// PACKET_ACCEL 4
 	void sendSensorAcceleration(uint8_t sensorId, float* vector);

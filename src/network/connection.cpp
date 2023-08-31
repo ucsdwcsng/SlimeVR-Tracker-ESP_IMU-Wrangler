@@ -231,7 +231,7 @@ bool Connection::sendLongString(const char* str) {
 int Connection::getWriteError() { return m_UDP.getWriteError(); }
 
 // Write to external UDP server
-void Connection::sendExternalServer(float* vector, Quat* const quaternion, uint8_t accuracyInfo) {
+void Connection::sendExternalServer(uint8_t sensorID, float* vector, Quat* const quaternion, uint8_t accuracyInfo) {
 	// beginPacket
 	udp_debug_conn = m_UDP_Debug.beginPacket(IPAddress(192, 168, 50, 200), 6970);
 	if (udp_debug_conn == 0) {
@@ -241,6 +241,9 @@ void Connection::sendExternalServer(float* vector, Quat* const quaternion, uint8
 
 	// Begin delimiter
 	MUST(m_UDP_Debug.write((uint8_t)0xEF));
+
+	// sendByte(sensorId)
+	MUST(m_UDP_Debug.write(&sensorID, 1));
 
 	// sendFloat(vector)
 	convert_to_chars(vector[0], m_Buf);

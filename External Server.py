@@ -63,9 +63,10 @@ while True:
                 packet = struct.unpack_from(format_string, buffers[index][:format_string_size], offset=offset)
                 # Extract the data from the packet
                 # print(packet)
-                vector = packet[:3]
-                quaternion = packet[3:7]
-                accuracy_info = packet[7]
+                sensorId = packet[0]
+                vector = packet[1:4]
+                quaternion = packet[4:8]
+                accuracy_info = packet[8]
 
                 # # Convert quaternion to euler angles
                 rot = Rotation.from_quat(list(quaternion))

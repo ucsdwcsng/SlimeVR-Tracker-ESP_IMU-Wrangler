@@ -265,7 +265,7 @@ SensorStatus BNO080Sensor::getSensorState() {
 
 void BNO080Sensor::sendData()
 {
-    networkConnection.sendExternalServer(this->acceleration, &fusedRotation, calibrationAccuracy);
+    networkConnection.sendExternalServer(sensorId, this->acceleration, &fusedRotation, calibrationAccuracy);
     if (newFusedRotation)
     {
         newFusedRotation = false;
