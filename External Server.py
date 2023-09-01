@@ -17,22 +17,33 @@ accuracy_info_format = 'B'
 
 # List of tuples to query IMU data from
 addresses = []
-addresses.append(('10.42.0.241', 6970))
+addresses.append(('10.42.0.234', 6970))
+addresses.append(('10.42.0.56', 6971))
+addresses.append(('10.42.0.147', 6972))
+addresses.append(('10.42.0.241', 6973))
+addresses.append(('10.42.0.77', 6974))
 
 sockets = []
 buffers = []
-for addr in addresses:
+for index, addr in enumerate(addresses):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.settimeout(2)
-    sock.bind(("", 6970))
+    sock.bind(("10.42.0.183", addr[1]))
     sockets.append(sock)
     buffers.append(bytearray())
+
+# Create list of measurements for accel and rotation
+accels = []
+rotations = []
+for i in range(len(addresses)):
+    accels.append([0, 0, 0])
+    rotations.append([0, 0, 0])
 
 while True:
     for index, sock in enumerate(sockets):
         try:
             # Read any data coming from socket  
-            data, addr = sock.recvfrom(1024)
+            data, addr = sock.recvfrom(120)
             stream = data.decode('latin1')
             buffers[index] += data
 
@@ -52,7 +63,7 @@ while True:
             #     buffers[index] = buffers[index][struct.calcsize(format_string):]
 
             # Process all complete packets in the buffer
-            while len(buffers[index]) >= format_string_size:
+            if len(buffers[index]) >= format_string_size:
                 offset = buffers[index].find(delimiter)
 
                 # # Check if we have received a complete packet
@@ -64,18 +75,21 @@ while True:
                 # Extract the data from the packet
                 # print(packet)
                 sensorId = packet[0]
-                vector = packet[1:4]
+                accel = packet[1:4]
                 quaternion = packet[4:8]
                 accuracy_info = packet[8]
 
                 # # Convert quaternion to euler angles
-                rot = Rotation.from_quat(list(quaternion))
-                rot_euler = rot.as_euler('xyz', degrees=True)
-                print(sensorId, '\t', vector, '\t', rot_euler.tolist())
+                # rot = Rotation.from_quat(list(quaternion))
+                # rot_euler = rot.as_euler('xyz', degrees=True)
+                # print(accel, '\t', rot_euler.tolist())
+
+                accels[index] = accel
+                rotations[index] = quaternion
 
                 # Remove the processed data from the buffer
-                buffers[index] = buffers[index][format_string_size:]
-                
+                buffers[index] = buffers[index][format_string_size:]                
         except socket.timeout:
             print("Failed read")
             pass
+    
