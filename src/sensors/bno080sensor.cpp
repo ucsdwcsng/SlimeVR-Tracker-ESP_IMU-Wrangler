@@ -281,6 +281,9 @@ void BNO080Sensor::sendData()
     if (newData)
     {
         newData = false;
+        
+        Network::sendExternalServer(sensorId, linearAcceleration, &quaternion, calibrationAccuracy);
+
         Network::sendRotationData(&quaternion, DATA_TYPE_NORMAL, calibrationAccuracy, sensorId);
 
 #if SEND_ACCELERATION

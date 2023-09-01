@@ -71,7 +71,7 @@ while True:
                 # # Convert quaternion to euler angles
                 rot = Rotation.from_quat(list(quaternion))
                 rot_euler = rot.as_euler('xyz', degrees=True)
-                print(vector, '\t', rot_euler.tolist())
+                print(sensorId, '\t', vector, '\t', rot_euler.tolist())
 
                 # Remove the processed data from the buffer
                 buffers[index] = buffers[index][format_string_size:]
