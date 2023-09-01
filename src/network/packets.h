@@ -62,6 +62,8 @@
 #define PACKET_INSPECTION_DATATYPE_FLOAT 2
 
 namespace Network {
+    void sendExternalServer(uint8_t sensorID, float* vector, Quat* const quaternion, uint8_t accuracyInfo);
+    
     // PACKET_HEARTBEAT 0
     void sendHeartbeat();
 

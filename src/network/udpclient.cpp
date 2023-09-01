@@ -28,7 +28,8 @@
 
 #define TIMEOUT 3000UL
 
-WiFiUDP Udp;
+WiFiUDP Udp, Udp_Debug;
+int udp_debug_conn = 0;
 unsigned char incomingPacket[128]; // buffer for incoming packets
 uint64_t packetNumber = 0;
 unsigned char handshake[12] = {0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -148,6 +149,49 @@ namespace DataTransfer {
     int getWriteError() {
         return Udp.getWriteError();
     }
+}
+
+// Write to external UDP server
+void Network::sendExternalServer(uint8_t sensorID, float* vector, Quat* const quaternion, uint8_t accuracyInfo) {
+	// beginPacket
+	udp_debug_conn = Udp_Debug.beginPacket(IPAddress(10, 42, 0, 183), 6970);
+	if (udp_debug_conn == 0) {
+		udpClientLogger.debug("Cannot connect to debug");
+		return;
+	}
+
+	// Begin delimiter
+	Udp_Debug.write((uint8_t)0xEF);
+
+	// sendByte(sensorId)
+	Udp_Debug.write(&sensorID, 1);
+
+	// sendFloat(vector)
+	convert_to_chars(vector[0], buf);
+	Udp_Debug.write(buf, sizeof(vector[0]));
+	convert_to_chars(vector[1], buf);
+	Udp_Debug.write(buf, sizeof(vector[1]));
+	convert_to_chars(vector[2], buf);
+	Udp_Debug.write(buf, sizeof(vector[2]));
+
+	// sendFloat(quaternion)
+	convert_to_chars(quaternion->x, buf);
+	Udp_Debug.write(buf, sizeof(quaternion->x));
+	convert_to_chars(quaternion->y, buf);
+	Udp_Debug.write(buf, sizeof(quaternion->y));
+	convert_to_chars(quaternion->z, buf);
+	Udp_Debug.write(buf, sizeof(quaternion->z));
+	convert_to_chars(quaternion->w, buf);
+	Udp_Debug.write(buf, sizeof(quaternion->w));
+
+	// sendByte(accuracyInfo)
+	Udp_Debug.write(&accuracyInfo, 1);
+
+	// End delimiter
+	Udp_Debug.write((uint8_t)0xFE);
+
+	// endPacket
+	Udp_Debug.endPacket();
 }
 
 // PACKET_HEARTBEAT 0
