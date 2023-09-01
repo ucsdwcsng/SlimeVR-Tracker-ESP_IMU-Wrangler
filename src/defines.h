@@ -155,7 +155,8 @@
   #define PIN_IMU_INT 35
   #define PIN_IMU_INT_2 25
   #define PIN_BATTERY_LEVEL 36
-  #define LED_PIN 13
+  #define LED_PIN 12
+//  #define LED_PIN 13
   #define LED_INVERTED false
 
   #define PIN_IMU_CS 17
