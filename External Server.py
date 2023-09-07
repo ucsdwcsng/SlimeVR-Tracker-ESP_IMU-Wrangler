@@ -1,4 +1,5 @@
 # Simulate UDP requests to a server
+import datetime
 import pickle
 import socket
 import struct
@@ -42,6 +43,8 @@ for i in range(len(addresses)):
     rotations.append([0, 0, 0])
 
 out_pose = []
+
+print("Start collection")
 
 try:
     debug_i = 0
@@ -112,7 +115,11 @@ finally:
     # Close the socket
     for sock in sockets:
         sock.close()
+
+    # Get YYYY-MM-DD_HH-MM-SS
+    today = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     
-    # Output to pkl
-    with open('pose.pkl', 'wb') as f:
+    # Output to pkl with date
+    print("Saving to pickle")
+    with open(f'pose_{today}.pkl', 'wb') as f:
         pickle.dump(out_pose, f)
