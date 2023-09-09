@@ -25,7 +25,7 @@
 // https://docs.slimevr.dev/firmware/configuring-project.html#2-configuring-definesh
 // ================================================
 
-#define ORIG_HARDWARE true
+#define ORIG_HARDWARE false
 
 #if ORIG_HARDWARE == false
   // Set parameters of IMU and board used

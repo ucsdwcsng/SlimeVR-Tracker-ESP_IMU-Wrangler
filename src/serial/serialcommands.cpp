@@ -220,6 +220,32 @@ namespace SerialCommands {
         logger.info("Note:");
         logger.info("  Temperature calibration config saves automatically when calibration percent is at 100%");
     }
+
+    void cmdSetExtIPPort(CmdParser* parser) {
+        if (parser->getParamCount() < 3) {
+            logger.error("CMD SET EXTIPPORT ERROR: Too few arguments");
+            logger.info("Syntax: SET EXTIPPORT \"<IP>\" \"<PORT>\"");
+            return;
+        }
+        IPAddress ip;
+        if (!ip.fromString(parser->getCmdParam(1))) {
+            logger.error("CMD SET EXTIPPORT ERROR: Invalid IP address");
+            logger.error(parser->getCmdParam(1));
+            return;
+        }
+        
+        std::string portStr = parser->getCmdParam(2);
+        int portInt = std::stoi(portStr);
+        if (portInt < 0 || portInt > 65535) {
+            logger.error("CMD SET EXTIPPORT ERROR: Port out of range");
+            return;
+        }
+        uint16_t port = static_cast<uint16_t>(portInt);
+
+        configuration.setExternalIPPort(ip, port);
+        logger.info("CMD SET EXTIPPORT OK: Set", ip.toString().c_str(), ":", port);
+        configuration.setExtConnected(true);
+    } 
     
     void setUp() {
         cmdCallbacks.addCmd("SET", &cmdSet);
@@ -227,6 +253,7 @@ namespace SerialCommands {
         cmdCallbacks.addCmd("FRST", &cmdFactoryReset);
         cmdCallbacks.addCmd("REBOOT", &cmdReboot);
         cmdCallbacks.addCmd("TCAL", &cmdTemperatureCalibration);
+        cmdCallbacks.addCmd("EXT", &cmdSetExtIPPort);
     }
 
     void update() {

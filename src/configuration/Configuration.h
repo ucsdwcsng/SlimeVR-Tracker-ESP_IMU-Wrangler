@@ -50,6 +50,12 @@ namespace SlimeVR {
             bool loadTemperatureCalibration(uint8_t sensorId, GyroTemperatureCalibrationConfig& config);
             bool saveTemperatureCalibration(uint8_t sensorId, const GyroTemperatureCalibrationConfig& config);
 
+            void setExternalIPPort(IPAddress ip, uint16_t port);
+            void setExtConnected(bool conn) { this->connected = conn; };
+            bool getExtConnected() { return this->connected; };
+            IPAddress getExternalIP() { return this->externalIP; };
+            uint16_t getExternalPort() { return this->externalPort; };
+
         private:
             void loadCalibrations();
             bool runMigrations(int32_t version);
@@ -62,6 +68,10 @@ namespace SlimeVR {
             Logging::Logger m_Logger = Logging::Logger("Configuration");
 
             static CalibrationConfig m_EmptyCalibration;
+
+            IPAddress externalIP = IPAddress(0, 0, 0, 0);
+            uint16_t externalPort = 0;
+            bool connected = false;
         };
     }
 }

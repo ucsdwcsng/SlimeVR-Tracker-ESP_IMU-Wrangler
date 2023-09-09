@@ -382,6 +382,11 @@ namespace SlimeVR {
             return true;
         }
 
+        void Configuration::setExternalIPPort(IPAddress ip, uint16_t port) {
+            externalIP = ip;
+            externalPort = port;
+        }
+
         bool Configuration::runMigrations(int32_t version) {
             return true;
         }

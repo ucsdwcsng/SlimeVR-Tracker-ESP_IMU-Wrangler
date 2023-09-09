@@ -154,9 +154,13 @@ namespace DataTransfer {
 // Write to external UDP server
 void Network::sendExternalServer(uint8_t sensorID, float* vector, Quat* const quaternion, uint8_t accuracyInfo) {
 	// beginPacket
-	udp_debug_conn = Udp_Debug.beginPacket(IPAddress(10, 42, 0, 183), 6970);
+    if (!configuration.getExtConnected()) {
+        return;
+    }
+	udp_debug_conn = Udp_Debug.beginPacket(configuration.getExternalIP(), configuration.getExternalPort());
 	if (udp_debug_conn == 0) {
 		udpClientLogger.debug("Cannot connect to debug");
+        configuration.setExtConnected(false);
 		return;
 	}
 
@@ -681,6 +685,7 @@ void ServerConnection::update(Sensor * const sensor, Sensor * const sensor2) {
 #ifdef DEBUG_NETWORK
             udpClientLogger.trace("Received %d bytes from %s, port %d", packetSize, Udp.remoteIP().toString().c_str(), Udp.remotePort());
             udpClientLogger.traceArray("UDP packet contents: ", incomingPacket, len);
+            udpClientLogger.trace("Packet type: %d", convert_chars<int>(incomingPacket));
 #endif
 
             switch (convert_chars<int>(incomingPacket))
@@ -715,6 +720,13 @@ void ServerConnection::update(Sensor * const sensor, Sensor * const sensor2) {
                 else if(incomingPacket[4] == sensor2->getSensorId()) {
                     sensorStateNotified2 = incomingPacket[5];
                 }
+                break;
+            case 99: // PACKET_EXT_PORT
+                uint16_t port;
+                port = convert_chars<uint16_t>(incomingPacket + 4);
+                configuration.setExternalIPPort(Udp.remoteIP(), port);
+                configuration.setExtConnected(true);
+                udpClientLogger.info("SET EXT IP and PORT: %s:%d", Udp.remoteIP().toString().c_str(), port);
                 break;
             }
         }
