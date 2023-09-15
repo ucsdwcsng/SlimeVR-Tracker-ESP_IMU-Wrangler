@@ -25,7 +25,7 @@ all_data = []
 # 1st floor addrs
 ip_head_address = '10.42.0.'
 devices = [234, 56, 147, 241, 77]
-devices = [234, 56]
+devices = [77, 234, 56, 147, 50, 103]
 # addresses.append(('10.42.0.234', 6970))
 # addresses.append(('10.42.0.56', 6971))
 # addresses.append(('10.42.0.147', 6972))
@@ -138,6 +138,7 @@ def get_measurements():
                         buffers[index] = buffers[index][format_string_size:]                
                 except socket.timeout:
                     print("Failed read")
+                    print(devices[index])
                     pass
             
             # Add to numpy array tuple of accel and rotation

@@ -25,7 +25,7 @@
 #define SLIMEVR_CONFIGURATION_CONFIGURATION_H
 
 #include <vector>
-
+#include <WiFiUdp.h>
 #include "DeviceConfig.h"
 #include "logging/Logger.h"
 #include "../motionprocessing/GyroTemperatureCalibrator.h"
