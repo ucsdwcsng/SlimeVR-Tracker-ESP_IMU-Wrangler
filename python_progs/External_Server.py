@@ -19,13 +19,14 @@ format_string = ">xB7fBx"
 format_string_size = struct.calcsize(format_string)
 accuracy_info_format = 'B'
 
-all_data = []
+all_data = multiprocessing.Manager().list()
+mu_lock = multiprocessing.Lock()
 
 # List of tuples to query IMU data from
 # 1st floor addrs
-ip_head_address = '10.42.0.'
-devices = [234, 56, 147, 241, 77]
-devices = [77, 234, 56, 147, 50, 103]
+# ip_head_address = '10.42.0.'
+# devices = [234, 56, 147, 241, 77]
+# devices = [77, 234, 56, 147, 50, 103]
 # addresses.append(('10.42.0.234', 6970))
 # addresses.append(('10.42.0.56', 6971))
 # addresses.append(('10.42.0.147', 6972))
@@ -33,8 +34,10 @@ devices = [77, 234, 56, 147, 50, 103]
 # addresses.append(('10.42.0.77', 6974))
 
 # 5th floor addrs
-# ip_head_address = '192.168.50.'
-# devices = [119, 102]
+ip_head_address = '192.168.1.'
+devices = [119]
+# devices = [84, 102, 242, 119, 123, 17, 64]
+
 # addresses.append(('192.168.50.119', 6970))
 # addresses.append(('192.168.50.102', 6973))
 
@@ -60,7 +63,9 @@ def set_SlimeVR_port(ip, port):
 
 def verbose():
     while True:
+        mu_lock.acquire()
         print(all_data)
+        mu_lock.release()
         time.sleep(1)
         
 def get_measurements():
@@ -68,7 +73,7 @@ def get_measurements():
     buffers = []
     for index, addr in enumerate(addresses):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.settimeout(2)
+        sock.settimeout(0.1)
         sock.bind(("", addr[1]))
         sockets.append(sock)
         buffers.append(bytearray())
@@ -148,7 +153,9 @@ def get_measurements():
                 tu = (accels[i], rotations[i])
                 temp.append(tu)
             
-            all_data = temp
+            mu_lock.acquire()
+            all_data.insert(0, temp)
+            mu_lock.release()
             out_pose.append(tuple(all_data))
 
     finally:
