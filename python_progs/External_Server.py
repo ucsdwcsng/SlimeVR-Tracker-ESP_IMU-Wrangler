@@ -24,9 +24,9 @@ mu_lock = multiprocessing.Lock()
 
 # List of tuples to query IMU data from
 # 1st floor addrs
-# ip_head_address = '10.42.0.'
-# devices = [234, 56, 147, 241, 77]
+ip_head_address = '10.42.0.'
 # devices = [77, 234, 56, 147, 50, 103]
+devices = [56]
 # addresses.append(('10.42.0.234', 6970))
 # addresses.append(('10.42.0.56', 6971))
 # addresses.append(('10.42.0.147', 6972))
@@ -34,8 +34,8 @@ mu_lock = multiprocessing.Lock()
 # addresses.append(('10.42.0.77', 6974))
 
 # 5th floor addrs
-ip_head_address = '192.168.1.'
-devices = [119]
+# ip_head_address = '192.168.1.'
+# devices = [119]
 # devices = [84, 102, 242, 119, 123, 17, 64]
 
 # addresses.append(('192.168.50.119', 6970))
@@ -61,12 +61,38 @@ def set_SlimeVR_port(ip, port):
     # Send the UDP packet
     sock.sendto(msg, (ip, 6969))
 
-def verbose():
-    while True:
-        mu_lock.acquire()
-        print(all_data)
-        mu_lock.release()
-        time.sleep(1)
+def logger():
+    out_pose = []
+
+    try:
+        while True:
+            mu_lock.acquire()
+            # if len(all_data) > 0:
+            #     # Quaternion outputted by BNO085 is output on pitch, roll, yaw
+            #     # DEBUG Steps:
+            #     # 1. Record rotation of tracker in two orientations
+            #     # 2. Take quaternions and plot one timeframe of quaternion
+            #     # 2a. Clear timeframe and plot next timeframe to create animation
+            #     quat = all_data[0][0][1]
+            #     # Convert quaternion to euler angles
+            #     rot = Rotation.from_quat(list(quat))
+            #     rot_euler = rot.as_euler('xyz', degrees=True)
+                
+            #     accel = all_data[0][0][0]
+            #     print(accel, end="\t\t")
+            #     print(rot_euler.tolist())
+            if len(all_data) > 0:
+                out_pose.append(list(all_data))
+            mu_lock.release()
+            time.sleep(1/60)
+    finally:
+        # Get YYYY-MM-DD_HH-MM-SS
+        today = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        
+        # Output to pkl with date
+        print("Saving to pickle")
+        with open(f'pose_{today}.pkl', 'wb') as f:
+            pickle.dump(out_pose, f)
         
 def get_measurements():
     sockets = []
@@ -79,13 +105,11 @@ def get_measurements():
         buffers.append(bytearray())
 
     # Create list of measurements for accel and rotation
-    accels = []
-    rotations = []
+    accels = [[0, 0, 0] for i in range(len(addresses))]
+    rotations = [[0, 0, 0, 0] for i in range(len(addresses))]
     for i in range(len(addresses)):
         accels.append([0, 0, 0])
         rotations.append([0, 0, 0])
-
-    out_pose = []
 
     print("Start collection")
 
@@ -142,9 +166,25 @@ def get_measurements():
                         # Remove the processed data from the buffer
                         buffers[index] = buffers[index][format_string_size:]                
                 except socket.timeout:
-                    print("Failed read")
-                    print(devices[index])
-                    pass
+                    # print("Failed read")
+                    # print(devices[index])
+                
+                    accel_zero = [0, 0, 0]
+
+                    # if len(accels[index]) > 0:
+                    #     # If we failed to get a packet, lerp towards 0
+                    #     lerp = np.multiply(accels[index], 0.5)
+                    #     # Reformat to exclude exponential notation
+                    #     formatted = []
+                    #     for x in lerp:
+                    #         if x < 0.0001:
+                    #             formatted.append(0)
+                    #         else:   
+                    #             formatted.append(x)
+                    #     accels[index] = formated
+                    # else:
+                    #     accels[index] = accel_zero
+                    # pass
             
             # Add to numpy array tuple of accel and rotation
             # Create tuple first then add to numpy array
@@ -154,29 +194,23 @@ def get_measurements():
                 temp.append(tu)
             
             mu_lock.acquire()
-            all_data.insert(0, temp)
+            if len(all_data) > 0:
+                all_data[0] = temp
+            else:
+                all_data.insert(0, temp)
             mu_lock.release()
-            out_pose.append(tuple(all_data))
 
     finally:
         # Close the socket
         for sock in sockets:
             sock.close()
 
-        # Get YYYY-MM-DD_HH-MM-SS
-        today = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        
-        # Output to pkl with date
-        print("Saving to pickle")
-        with open(f'pose_{today}.pkl', 'wb') as f:
-            pickle.dump(out_pose, f)
-
 if __name__ == '__main__':
     # Set port number
     for device in addresses:
         set_SlimeVR_port(device[0], device[1])
 
-    v = multiprocessing.Process(target=verbose)
+    v = multiprocessing.Process(target=logger)
     m = multiprocessing.Process(target=get_measurements)
 
     v.start()
