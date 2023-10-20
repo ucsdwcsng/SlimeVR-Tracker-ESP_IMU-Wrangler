@@ -61,5 +61,6 @@ def update(frame):
     ax.quiver(0, 0, 0, rot_euler[0], rot_euler[1], rot_euler[2], length=1, normalize=True)
     return ax
 
+print(rot_data)
 ani = animation.FuncAnimation(fig, update, frames=rot_data, interval=50)
 plt.show()
