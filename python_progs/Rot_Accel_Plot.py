@@ -1,8 +1,8 @@
+#%%
 import struct, socket
 import datetime, pickle
 
 import numpy as np
-import pandas as pd
 from scipy.spatial.transform import Rotation
 
 import multiprocessing, time
@@ -64,3 +64,4 @@ def update(frame):
 print(rot_data)
 ani = animation.FuncAnimation(fig, update, frames=rot_data, interval=50)
 plt.show()
+# %%
