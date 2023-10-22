@@ -13,7 +13,7 @@ import matplotlib.animation as animation
 
 # Import the pickle file
 imu_data = None
-with open('test_rot.pkl', 'rb') as f:
+with open('test_rot_test2.pkl', 'rb') as f:
     imu_data = pickle.load(f)
 
 # Data is formated as a list of frames, each frame containing a list of devices
@@ -31,6 +31,8 @@ for frame in imu_data:
 # Animate rotation data
 fig = plt.figure()
 ax = plt.axes(projection='3d')
+
+
 
 # Update function that shows the rotation of the IMU
 # Use z axis as up axis 
@@ -53,15 +55,17 @@ def update(frame):
     matrix = rot.as_matrix()
 
     # Plot rotation matrix
-    # ax.quiver(0, 0, 0, matrix[0][0], matrix[0][1], matrix[0][2], length=1, normalize=True)
+    ax.quiver(0, 0, 0, matrix[0][0], matrix[0][1], matrix[0][2], length=1, normalize=True, color="tab:red")
+    ax.quiver(0, 0, 0, matrix[1][0], matrix[1][1], matrix[1][2], length=1, normalize=True, color="tab:green")
+    ax.quiver(0, 0, 0, matrix[2][0], matrix[2][1], matrix[2][2], length=1, normalize=True, color="tab:blue")
 
     
     rot_euler = rot.as_euler('xyz', degrees=True)
 
-    ax.quiver(0, 0, 0, rot_euler[0], rot_euler[1], rot_euler[2], length=1, normalize=True)
+    # ax.quiver(0, 0, 0, , length=1, normalize=True)
     return ax
 
 print(rot_data)
-ani = animation.FuncAnimation(fig, update, frames=rot_data, interval=50)
+ani = animation.FuncAnimation(fig, update, frames=rot_data, interval=1/100*1e3)
 plt.show()
 # %%
