@@ -25,7 +25,7 @@ mu_lock = multiprocessing.Lock()
 # 1st floor addrs
 ip_head_address = '10.42.0.'
 # devices = [77, 234, 56, 147, 50, 103]
-devices = [234]
+devices = [50, 234, 56, 147, 241, 77]
 # addresses.append(('10.42.0.234', 6970))
 # addresses.append(('10.42.0.56', 6971))
 # addresses.append(('10.42.0.147', 6972))
