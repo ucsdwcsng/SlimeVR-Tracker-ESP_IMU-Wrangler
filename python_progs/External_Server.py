@@ -83,7 +83,7 @@ def logger():
             #     print(accel, end="\t\t")
             #     print(rot_euler.tolist())
             if len(all_data) > 0:
-                out_pose.append(list(all_data)[0])
+                out_pose.append([time.time(), list(all_data)[0]])
             mu_lock.release()
             # if len(out_pose) > 0:
             #     print("Frame", len(out_pose), out_pose[-1])
