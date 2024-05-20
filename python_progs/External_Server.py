@@ -25,8 +25,7 @@ mu_lock = multiprocessing.Lock()
 # List of tuples to query IMU data from
 # 1st floor addrs
 ip_head_address = '10.42.0.'
-devices = [38]
-# devices = [77, 234, 56, 147, 50, 103]
+devices = [77, 234, 56, 147, 50, 103]
 # devices = [50, 234, 56, 147, 241, 77]
 
 # 5th floor addrs
