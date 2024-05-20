@@ -25,9 +25,9 @@
 #include "utils.h"
 #include "GlobalVars.h"
 
-    void BNO080Sensor::motionSPISetup()
-    {
-    #if USE_SPI_IMU == true
+void BNO080Sensor::motionSPISetup()
+{
+#if USE_SPI_IMU == true
     #ifdef DEBUG_SENSOR
         imu.enableDebugging(Serial);
     #endif
@@ -84,7 +84,7 @@
         working = true;
         configured = true;
     #endif
-    }
+}
 
 void BNO080Sensor::motionSetup()
 {
