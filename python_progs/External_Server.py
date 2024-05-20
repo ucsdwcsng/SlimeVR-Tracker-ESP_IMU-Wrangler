@@ -24,21 +24,16 @@ mu_lock = multiprocessing.Lock()
 # List of tuples to query IMU data from
 # 1st floor addrs
 ip_head_address = '10.42.0.'
-# devices = [77, 234, 56, 147, 50, 103]
-devices = [50, 234, 56, 147, 241, 77]
-# addresses.append(('10.42.0.234', 6970))
-# addresses.append(('10.42.0.56', 6971))
-# addresses.append(('10.42.0.147', 6972))
-# addresses.append(('10.42.0.241', 6973))
-# addresses.append(('10.42.0.77', 6974))
+devices = [77, 234, 56, 147, 50, 103]
+# devices = [50, 234, 56, 147, 241, 77]
 
 # 5th floor addrs
 # ip_head_address = '192.168.1.'
 # devices = [119]
 # devices = [84, 102, 242, 119, 123, 17, 64]
 
-# addresses.append(('192.168.50.119', 6970))
-# addresses.append(('192.168.50.102', 6973))
+# Timing of recording the data
+fps = 60
 
 addresses = []
 for i in range(len(devices)):
@@ -81,9 +76,9 @@ def logger():
             #     print(accel, end="\t\t")
             #     print(rot_euler.tolist())
             if len(all_data) > 0:
-                out_pose.append(list(all_data))
+                out_pose.append(list(all_data)[0])
             mu_lock.release()
-            time.sleep(1/60)
+            time.sleep(1/fps)
     finally:
         # Get YYYY-MM-DD_HH-MM-SS
         today = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -104,11 +99,9 @@ def get_measurements():
         buffers.append(bytearray())
 
     # Create list of measurements for accel and rotation
-    accels = [[0, 0, 0] for i in range(len(addresses))]
-    rotations = [[0, 0, 0, 0] for i in range(len(addresses))]
-    for i in range(len(addresses)):
-        accels.append([0, 0, 0])
-        rotations.append([0, 0, 0])
+    # Each SlimeVR tracker can have 2 sensors
+    accels = [[(None, None, None), (None, None, None)] for i in range(len(addresses))]
+    rotations = [[(None, None, None, None), (None, None, None, None)] for i in range(len(addresses))]
 
     print("Start collection")
 
@@ -155,12 +148,12 @@ def get_measurements():
                         accuracy_info = packet[8]
 
                         # # Convert quaternion to euler angles
-                        # rot = Rotation.from_quat(list(quaternion))
-                        # rot_euler = rot.as_euler('xyz', degrees=True)
-                        # print(accel, '\t', rot_euler.tolist())
+                        rot = Rotation.from_quat(list(quaternion))
+                        rot_euler = rot.as_euler('xyz', degrees=True)
+                        print(sensorId, accel, '\t', rot_euler.tolist())
 
-                        accels[index] = accel
-                        rotations[index] = quaternion
+                        accels[index][sensorId] = accel
+                        rotations[index][sensorId] = quaternion
 
                         # Remove the processed data from the buffer
                         buffers[index] = buffers[index][format_string_size:]                
