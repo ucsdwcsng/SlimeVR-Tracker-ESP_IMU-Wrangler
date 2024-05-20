@@ -24,7 +24,8 @@ mu_lock = multiprocessing.Lock()
 # List of tuples to query IMU data from
 # 1st floor addrs
 ip_head_address = '10.42.0.'
-devices = [77, 234, 56, 147, 50, 103]
+devices = [38]
+# devices = [77, 234, 56, 147, 50, 103]
 # devices = [50, 234, 56, 147, 241, 77]
 
 # 5th floor addrs
@@ -100,8 +101,8 @@ def get_measurements():
 
     # Create list of measurements for accel and rotation
     # Each SlimeVR tracker can have 2 sensors
-    accels = [[(None, None, None), (None, None, None)] for i in range(len(addresses))]
-    rotations = [[(None, None, None, None), (None, None, None, None)] for i in range(len(addresses))]
+    accels = [np.array([(None, None, None), (None, None, None)], dtype=np.float32) for i in range(len(addresses))]
+    rotations = [np.array([(None, None, None, None), (None, None, None, None)], dtype=np.float32) for i in range(len(addresses))]
 
     print("Start collection")
 
@@ -143,14 +144,14 @@ def get_measurements():
                         # Extract the data from the packet
                         # print(packet)
                         sensorId = packet[0]
-                        accel = packet[1:4]
-                        quaternion = packet[4:8]
+                        accel = np.array(packet[1:4], dtype=np.float32)
+                        quaternion = np.array(packet[4:8], dtype=np.float32)
                         accuracy_info = packet[8]
 
                         # # Convert quaternion to euler angles
-                        rot = Rotation.from_quat(list(quaternion))
-                        rot_euler = rot.as_euler('xyz', degrees=True)
-                        print(sensorId, accel, '\t', rot_euler.tolist())
+                        # rot = Rotation.from_quat(list(quaternion))
+                        # rot_euler = rot.as_euler('xyz', degrees=True)
+                        # print(sensorId, accel, '\t', rot_euler.tolist())
 
                         accels[index][sensorId] = accel
                         rotations[index][sensorId] = quaternion
