@@ -6,6 +6,7 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 
 import multiprocessing, time
+import pygame
 
 # Assuming the packet has been received and stored in a variable called 'packet'
 # Assuming `data` is the binary data received from the network
@@ -35,6 +36,12 @@ devices = [38]
 
 # Timing of recording the data
 fps = 60
+
+# Initialize pygame
+pygame.init()
+
+# Initialize clock
+clock = pygame.time.Clock()
 
 addresses = []
 for i in range(len(devices)):
@@ -79,7 +86,9 @@ def logger():
             if len(all_data) > 0:
                 out_pose.append(list(all_data)[0])
             mu_lock.release()
-            time.sleep(1/fps)
+            # if len(out_pose) > 0:
+            #     print("Frame", len(out_pose), out_pose[-1])
+            clock.tick(fps)
     finally:
         # Get YYYY-MM-DD_HH-MM-SS
         today = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -101,7 +110,7 @@ def get_measurements():
 
     # Create list of measurements for accel and rotation
     # Each SlimeVR tracker can have 2 sensors
-    accels = [np.array([(None, None, None), (None, None, None)], dtype=np.float32) for i in range(len(addresses))]
+    accels = [np.array([(0, 0, 0), (0, 0, 0)], dtype=np.float32) for i in range(len(addresses))]
     rotations = [np.array([(None, None, None, None), (None, None, None, None)], dtype=np.float32) for i in range(len(addresses))]
 
     print("Start collection")
