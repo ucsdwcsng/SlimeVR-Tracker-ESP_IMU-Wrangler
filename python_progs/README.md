@@ -1,6 +1,22 @@
 # Python IMU Extraction Programs
 ---
-The python programs in this folder are used to extract IMU data from the SlimeVR trackers.
+The python programs in this folder are used to extract IMU data from the SlimeVR trackers. Some others are utility programs to aid in development and flash multiple trackers at once.
+
+---
+## build_and_flash.py
+---
+This program is used to flash multiple tags at once. Given a set of IPs, it will build and flash multiple tags at once without needing to change the platformio.ini config file.
+
+**Note: This only works for linux for now due to the dependency on relative root to execute the flashing program.**
+
+### Setup:
+* **To setup this program, you will need to modify variables inside the code:**
+    * `mcu = 'esp12e'`
+        * MCU represents what ESP32 type to flash for
+    * `ip_head_address = '192.168.1.'`
+        * IP head address represents the IPV4 mask as well as the first part of the IP address representing the tracker.
+    * `<esp12e/esp32>_devices = [1, 2, 3, 4, 5, 6]`
+        * Devices represent the last digit of the LAN IPV4 address. This is used to assign unique UDP ports for the trackers.
 
 ---
 ## External_Server.py
