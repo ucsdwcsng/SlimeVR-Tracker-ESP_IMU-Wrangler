@@ -44,19 +44,23 @@ def received(event: Event, pose_ref, mutex: multiprocessing.Lock):
         x = event.position.x
         y = event.position.y
         z = event.position.z
-        pose_ref['root'] = [np.array([x, y, z]), np.array(event.rotation)]
+        pose_ref['root'] = [np.array([x, y, z]), event.rotation]
     
     if isinstance(event, BoneTransformEvent):
         x = event.position.x
         y = event.position.y
         z = event.position.z
-        pose_ref['bone'][event.joint] = [np.array([x, y, z]), np.array(event.rotation)]
+        dict_ref = pose_ref['bone']
+        dict_ref[str(event.joint)] = [np.array([x, y, z]), event.rotation]
+        pose_ref['bone'] = dict_ref
 
     if isinstance(event, DeviceTransformEvent):
         x = event.position.x
         y = event.position.y
         z = event.position.z
-        pose_ref['device'][event.joint] = [np.array([x, y, z]), event.rotation]
+        dict_ref = pose_ref['device']
+        dict_ref[str(event.joint)] = [np.array([x, y, z]), event.rotation]
+        pose_ref['device'] = dict_ref
 
     if isinstance(event, RelativeTimeEvent):
         pose_ref['unix'] = time.time()
